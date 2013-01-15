@@ -50,3 +50,8 @@ func TestQuickFind(t *testing.T) {
 	uf := NewQuickFind(len(tinyUF))
 	testUF(uf, t, "QuickFind")
 }
+
+func TestQuickUnion(t *testing.T) {
+	uf := NewQuickUnion(len(tinyUF))
+	testUF(uf, t, "QuickUnion")
+}
