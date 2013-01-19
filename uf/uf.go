@@ -18,7 +18,7 @@ type UF interface {
 	Count() int
 }
 
-// Quick-find algorithm.
+// QuickFind implements the quick-find algorithm.
 type QuickFind struct {
 	id    []int // p and q are connected iff they have the same id in the array
 	count int   // number of components
@@ -38,17 +38,6 @@ func NewQuickFind(n int) *QuickFind {
 	return &QuickFind{id: a[:], count: n}
 }
 
-// Find implements the UF Find method.
-// Only one array access. (That's why it is called quick-find.)
-func (qf *QuickFind) Find(p int) int {
-	return qf.id[p]
-}
-
-// Connected implements the UF Connected method.
-func (qf *QuickFind) Connected(p, q int) bool {
-	return qf.id[p] == qf.id[q]
-}
-
 // Union implements the UF Union method.
 // Between N + 3 to 2N + 1 array access when combining two components.
 func (qf *QuickFind) Union(p, q int) {
@@ -64,6 +53,17 @@ func (qf *QuickFind) Union(p, q int) {
 		}
 	}
 	qf.count--
+}
+
+// Find implements the UF Find method.
+// Only one array access. (That's why it is called quick-find.)
+func (qf *QuickFind) Find(p int) int {
+	return qf.id[p]
+}
+
+// Connected implements the UF Connected method.
+func (qf *QuickFind) Connected(p, q int) bool {
+	return qf.id[p] == qf.id[q]
 }
 
 // Count implements the UF Count method.
@@ -91,6 +91,18 @@ func NewQuickUnion(n int) *QuickUnion {
 	return &QuickUnion{id: a[:], count: n}
 }
 
+// Union implements the UF Union method.
+// Worst case: 2N - 1 array access.
+func (qu *QuickUnion) Union(p, q int) {
+	i := qu.Find(p)
+	j := qu.Find(q)
+	if i == j {
+		return
+	}
+	qu.id[i] = j
+	qu.count--
+}
+
 // Find implements the UF Find method.
 // Cost are related to tree depth. Worst case: N array access.
 func (qu *QuickUnion) Find(p int) int {
@@ -106,31 +118,21 @@ func (qu *QuickUnion) Connected(p, q int) bool {
 	return qu.Find(p) == qu.Find(q)
 }
 
-// Union implements the UF Union method.
-// Worst case: 2N - 1 array access.
-func (qu *QuickUnion) Union(p, q int) {
-	i := qu.Find(p)
-	j := qu.Find(q)
-	if i == j {
-		return
-	}
-	qu.id[i] = j
-	qu.count--
-}
-
 // Count implements the UF Count method.
 func (qu *QuickUnion) Count() int {
 	return qu.count
 }
 
-// NewWeightedQuickFind creates a uinon-find data structure that can hold at most n
-// objects. It uses the weighted quick-find algorithm.
-// Returns nil if n < 0.
+// WeightedQuickUion implements the weighted quick-union algorithm.
 type WeightedQuickUnion struct {
-	*QuickUnion
-	size []int // size[i] = number of objects in the subtree rooted at i
+	qu   *QuickUnion // Hide implementation detail, so not using embedding here.
+	size []int       // size[i] = number of objects in the subtree rooted at i
 }
 
+// NewWeightedQuickFind creates a uinon-find data structure that can hold at
+// most n objects. It uses the weighted quick-find algorithm. The tree height
+// is guaranteed to be at most lg n.
+// Returns nil if n < 0.
 func NewWeightedQuickUnion(n int) *WeightedQuickUnion {
 	qu := NewQuickUnion(n)
 	if qu == nil {
@@ -143,21 +145,38 @@ func NewWeightedQuickUnion(n int) *WeightedQuickUnion {
 	return &WeightedQuickUnion{qu, size}
 }
 
+// Union implements the UF Union method.
+// At most ~2(lg n) array accesses.
 func (wqu *WeightedQuickUnion) Union(p, q int) {
 	// fmt.Println("weighted union called")
-	i := wqu.Find(p)
-	j := wqu.Find(q)
+	i := wqu.qu.Find(p)
+	j := wqu.qu.Find(q)
 	if i == j {
 		return
 	}
 
 	// Make smaller root point to larger one
 	if wqu.size[i] < wqu.size[j] {
-		wqu.id[i] = j
+		wqu.qu.id[i] = j
 		wqu.size[j] += wqu.size[i]
 	} else {
-		wqu.id[j] = i
+		wqu.qu.id[j] = i
 		wqu.size[i] += wqu.size[j]
 	}
-	wqu.count--
+	wqu.qu.count--
+}
+
+// Find implements the UF Find method. At most lg n array access.
+func (wqu *WeightedQuickUnion) Find(p int) int {
+	return wqu.qu.Find(p)
+}
+
+// Connected implements the UF Connected method.
+func (wqu *WeightedQuickUnion) Connected(p, q int) bool {
+	return wqu.qu.Connected(p, q)
+}
+
+// Count implements the UF Count method.
+func (wqu *WeightedQuickUnion) Count() int {
+	return wqu.qu.count
 }
