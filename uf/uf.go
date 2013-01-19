@@ -31,11 +31,11 @@ func NewQuickFind(n int) *QuickFind {
 	if n < 0 {
 		return nil
 	}
-	a := make([]int, n, n)
-	for i, _ := range a {
-		a[i] = i
+	qf := QuickFind{id: make([]int, n, n), count: n}
+	for i := 0; i < n; i++ {
+		qf.id[i] = i
 	}
-	return &QuickFind{id: a[:], count: n}
+	return &qf
 }
 
 // Union implements the UF Union method.
@@ -44,7 +44,7 @@ func (qf *QuickFind) Union(p, q int) {
 	if qf.Connected(p, q) {
 		return
 	}
-	// Change all entries with id[p] to id[q]
+	// change all entries with id[p] to id[q]
 	pid := qf.id[p]
 	qid := qf.id[q]
 	for i := 0; i < len(qf.id); i++ {
@@ -84,11 +84,11 @@ func NewQuickUnion(n int) *QuickUnion {
 	if n < 0 {
 		return nil
 	}
-	a := make([]int, n, n)
-	for i, _ := range a {
-		a[i] = i
+	qu := QuickUnion{id: make([]int, n, n), count: n}
+	for i := 0; i < n; i++ {
+		qu.id[i] = i
 	}
-	return &QuickUnion{id: a[:], count: n}
+	return &qu
 }
 
 // Union implements the UF Union method.
@@ -106,7 +106,7 @@ func (qu *QuickUnion) Union(p, q int) {
 // Find implements the UF Find method.
 // Cost are related to tree depth. Worst case: N array access.
 func (qu *QuickUnion) Find(p int) int {
-	// Find the root of node p.
+	// find the root of node p
 	for p != qu.id[p] {
 		p = qu.id[p]
 	}
@@ -123,60 +123,69 @@ func (qu *QuickUnion) Count() int {
 	return qu.count
 }
 
-// WeightedQuickUion implements the weighted quick-union algorithm.
+// WeightedQuickUion implements the weighted quick-union algorithm (with one
+// pass path compression).
 type WeightedQuickUnion struct {
-	qu   *QuickUnion // Hide implementation detail, so not using embedding here.
-	size []int       // size[i] = number of objects in the subtree rooted at i
+	id    []int // id[i] = parent of node i, node i is root if id[i] == i
+	size  []int // size[i] = number of objects in the subtree rooted at i
+	count int
 }
 
 // NewWeightedQuickFind creates a uinon-find data structure that can hold at
 // most n objects. It uses the weighted quick-find algorithm. The tree height
-// is guaranteed to be at most lg n.
+// is guaranteed to be at most lg n. (With path compression, the tree is
+// almost completely flat.)
 // Returns nil if n < 0.
 func NewWeightedQuickUnion(n int) *WeightedQuickUnion {
-	qu := NewQuickUnion(n)
-	if qu == nil {
+	if n < 0 {
 		return nil
 	}
-	size := make([]int, n, n)
+	wqu := WeightedQuickUnion{id: make([]int, n, n),
+		size: make([]int, n, n), count: n}
 	for i := 0; i < n; i++ {
-		size[i] = 1
+		wqu.id[i] = i
+		wqu.size[i] = 1
 	}
-	return &WeightedQuickUnion{qu, size}
+	return &wqu
 }
 
 // Union implements the UF Union method.
 // At most ~2(lg n) array accesses.
 func (wqu *WeightedQuickUnion) Union(p, q int) {
 	// fmt.Println("weighted union called")
-	i := wqu.qu.Find(p)
-	j := wqu.qu.Find(q)
+	i := wqu.Find(p)
+	j := wqu.Find(q)
 	if i == j {
 		return
 	}
 
-	// Make smaller root point to larger one
+	// make smaller root point to larger one
 	if wqu.size[i] < wqu.size[j] {
-		wqu.qu.id[i] = j
+		wqu.id[i] = j
 		wqu.size[j] += wqu.size[i]
 	} else {
-		wqu.qu.id[j] = i
+		wqu.id[j] = i
 		wqu.size[i] += wqu.size[j]
 	}
-	wqu.qu.count--
+	wqu.count--
 }
 
 // Find implements the UF Find method. At most lg n array access.
 func (wqu *WeightedQuickUnion) Find(p int) int {
-	return wqu.qu.Find(p)
+	for p != wqu.id[p] {
+		// path compression: point to grandparent if not root
+		wqu.id[p] = wqu.id[wqu.id[p]]
+		p = wqu.id[p]
+	}
+	return p
 }
 
 // Connected implements the UF Connected method.
 func (wqu *WeightedQuickUnion) Connected(p, q int) bool {
-	return wqu.qu.Connected(p, q)
+	return wqu.Find(p) == wqu.Find(q)
 }
 
 // Count implements the UF Count method.
 func (wqu *WeightedQuickUnion) Count() int {
-	return wqu.qu.count
+	return wqu.count
 }
