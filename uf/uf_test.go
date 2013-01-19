@@ -55,3 +55,8 @@ func TestQuickUnion(t *testing.T) {
 	uf := NewQuickUnion(len(tinyUF))
 	testUF(uf, t, "QuickUnion")
 }
+
+func TestWeightedQuickUnion(t *testing.T) {
+	uf := NewWeightedQuickUnion(len(tinyUF))
+	testUF(uf, t, "WeightedQuickUnion")
+}

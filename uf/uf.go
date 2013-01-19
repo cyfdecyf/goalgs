@@ -1,5 +1,5 @@
-// Package uf implements 3 union-find algorithms: quick-find, quick-union and TODO
-
+// Package uf implements 3 union-find algorithms: quick-find, quick-union and
+// weighted quick-union.
 package uf
 
 import (
@@ -8,23 +8,24 @@ import (
 
 // Union-find API
 type UF interface {
-	// Add connection between p and q.
+	// Union add connection between p and q.
 	Union(p, q int)
-	// Return component identifier for p.
+	// Find return component identifier for p.
 	Find(p int) int
-	// Return true if p and q are in the same component
+	// Connected return true if p and q are in the same component.
 	Connected(p, q int) bool
-	// Number of components
+	// Count return number of components.
 	Count() int
 }
 
 // Quick-find algorithm.
 type QuickFind struct {
-	id  []int // p and q are connected iff they have the same id in the array
-	cnt int   // number of components
+	id    []int // p and q are connected iff they have the same id in the array
+	count int   // number of components
 }
 
-// Creat a QuickFind instance which implements the UF interface.
+// NewQuickFind creates a uinon-find data structure that can hold at most n
+// objects. It uses the quick-find algorithm.
 // Returns nil if n < 0.
 func NewQuickFind(n int) *QuickFind {
 	if n < 0 {
@@ -34,11 +35,11 @@ func NewQuickFind(n int) *QuickFind {
 	for i, _ := range a {
 		a[i] = i
 	}
-	return &QuickFind{id: a[:], cnt: n}
+	return &QuickFind{id: a[:], count: n}
 }
 
 // Find implements the UF Find method.
-// Only one array access.
+// Only one array access. (That's why it is called quick-find.)
 func (qf *QuickFind) Find(p int) int {
 	return qf.id[p]
 }
@@ -62,21 +63,23 @@ func (qf *QuickFind) Union(p, q int) {
 			qf.id[i] = qid
 		}
 	}
-	qf.cnt--
+	qf.count--
 }
 
 // Count implements the UF Count method.
 func (qf *QuickFind) Count() int {
-	return qf.cnt
+	return qf.count
 }
 
-// Quick-union algorithm
+// QuickUnion implements the quick-union algorithm.
 type QuickUnion struct {
-	id  []int // id[p] contains the parent of node p, node p is root if id[p] == p
-	cnt int   // number of components
+	id    []int // id[i] = parent of node i, node i is root if id[i] == i
+	count int   // number of components
 }
 
-// Count implements the UF Count method.
+// NewQuickUnion creates a uinon-find data structure that can hold at most n
+// objects. It uses the quick-union algorithm.
+// Returns nil if n < 0.
 func NewQuickUnion(n int) *QuickUnion {
 	if n < 0 {
 		return nil
@@ -85,11 +88,11 @@ func NewQuickUnion(n int) *QuickUnion {
 	for i, _ := range a {
 		a[i] = i
 	}
-	return &QuickUnion{id: a[:], cnt: n}
+	return &QuickUnion{id: a[:], count: n}
 }
 
 // Find implements the UF Find method.
-// Worst case: N array access.
+// Cost are related to tree depth. Worst case: N array access.
 func (qu *QuickUnion) Find(p int) int {
 	// Find the root of node p.
 	for p != qu.id[p] {
@@ -112,10 +115,49 @@ func (qu *QuickUnion) Union(p, q int) {
 		return
 	}
 	qu.id[i] = j
-	qu.cnt--
+	qu.count--
 }
 
 // Count implements the UF Count method.
 func (qu *QuickUnion) Count() int {
-	return qu.cnt
+	return qu.count
+}
+
+// NewWeightedQuickFind creates a uinon-find data structure that can hold at most n
+// objects. It uses the weighted quick-find algorithm.
+// Returns nil if n < 0.
+type WeightedQuickUnion struct {
+	*QuickUnion
+	size []int // size[i] = number of objects in the subtree rooted at i
+}
+
+func NewWeightedQuickUnion(n int) *WeightedQuickUnion {
+	qu := NewQuickUnion(n)
+	if qu == nil {
+		return nil
+	}
+	size := make([]int, n, n)
+	for i := 0; i < n; i++ {
+		size[i] = 1
+	}
+	return &WeightedQuickUnion{qu, size}
+}
+
+func (wqu *WeightedQuickUnion) Union(p, q int) {
+	// fmt.Println("weighted union called")
+	i := wqu.Find(p)
+	j := wqu.Find(q)
+	if i == j {
+		return
+	}
+
+	// Make smaller root point to larger one
+	if wqu.size[i] < wqu.size[j] {
+		wqu.id[i] = j
+		wqu.size[j] += wqu.size[i]
+	} else {
+		wqu.id[j] = i
+		wqu.size[i] += wqu.size[j]
+	}
+	wqu.count--
 }
