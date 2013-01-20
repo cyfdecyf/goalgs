@@ -32,12 +32,20 @@ func copyTestData() [][]int {
 	return cp
 }
 
-func TestSelectionSort(t *testing.T) {
+func testSortFunc(sortFunc func(sort.Interface), funcName string, t *testing.T) {
 	for i, d := range copyTestData() {
 		is := sort.IntSlice(d)
-		SelectionSort(is)
+		sortFunc(is)
 		if !sort.IsSorted(is) {
-			t.Fatalf("SelectionSort wrong for data: %v, get: %v", data[i], d)
+			t.Fatalf("%s wrong for data: %v, get: %v", funcName, data[i], d)
 		}
 	}
+}
+
+func TestSelectionSort(t *testing.T) {
+	testSortFunc(SelectionSort, "SelectionSort", t)
+}
+
+func TestInsertionSort(t *testing.T) {
+	testSortFunc(InsertionSort, "InsertionSort", t)
 }

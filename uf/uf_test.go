@@ -23,7 +23,7 @@ var tinyUF = [...]pair{
 	{6, 7},
 }
 
-func testUF(uf UF, t *testing.T, ufname string) {
+func testUF(uf UF, ufname string, t *testing.T) {
 	for _, s := range tinyUF {
 		uf.Union(s.p, s.q)
 	}
@@ -48,15 +48,15 @@ func testUF(uf UF, t *testing.T, ufname string) {
 
 func TestQuickFind(t *testing.T) {
 	uf := NewQuickFind(len(tinyUF))
-	testUF(uf, t, "QuickFind")
+	testUF(uf, "QuickFind", t)
 }
 
 func TestQuickUnion(t *testing.T) {
 	uf := NewQuickUnion(len(tinyUF))
-	testUF(uf, t, "QuickUnion")
+	testUF(uf, "QuickUnion", t)
 }
 
 func TestWeightedQuickUnion(t *testing.T) {
 	uf := NewWeightedQuickUnion(len(tinyUF))
-	testUF(uf, t, "WeightedQuickUnion")
+	testUF(uf, "WeightedQuickUnion", t)
 }
