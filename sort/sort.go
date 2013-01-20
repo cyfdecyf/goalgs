@@ -1,4 +1,4 @@
-// Package sort implements the following algorithms: insertion sort
+// Package sort implements the following algorithms: selection sort, insertion sort, shell sort.
 package sort
 
 import (
@@ -27,5 +27,25 @@ func InsertionSort(data sort.Interface) {
 		for j := i; j > 0 && data.Less(j, j-1); j-- {
 			data.Swap(j, j-1)
 		}
+	}
+}
+
+func ShellSort(data sort.Interface) {
+	n := data.Len()
+
+	var h int
+	// 3x+1 increment sequence:  1, 4, 13, 40, 121, 364, 1093, ...
+	for h < n/3 {
+		h = 3*h + 1
+	}
+
+	for h >= 1 {
+		// h-sort the array
+		for i := h; i < n; i++ {
+			for j := i; j > 0 && data.Less(j, j-h); j -= h {
+				data.Swap(j, j-h)
+			}
+		}
+		h /= 3
 	}
 }
