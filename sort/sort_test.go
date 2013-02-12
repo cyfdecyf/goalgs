@@ -12,10 +12,13 @@ var _ = fmt.Println
 var data [][]int
 
 func init() {
-	const nSeq = 10
-	data = make([][]int, nSeq, nSeq)
+	const nSeq = 12
+	data = make([][]int, nSeq)
 
-	for i := 0; i < nSeq; i++ {
+	data[0] = []int{0}
+	data[1] = []int{1, 0}
+
+	for i := 2; i < nSeq; i++ {
 		n := int(1<<uint32(i)) + rand.Rand(0, 5)
 		data[i] = rand.GenKRandomLessN(n, n)
 	}
@@ -59,7 +62,7 @@ func TestShellSort(t *testing.T) {
 	testSortFunc(ShellSort, "ShellSort", t)
 }
 
-func TestMerge(t *testing.T) {
+func testMerge(funcName string, mf func(a, aux []int, lo, mid, hi int), t *testing.T) {
 	testData := []struct {
 		orig   []int
 		merged []int
@@ -79,14 +82,27 @@ func TestMerge(t *testing.T) {
 	for _, td := range testData {
 		cp := make([]int, 10)
 		copy(cp, td.orig)
-		merge(cp, aux, td.lo, td.mid, td.hi)
-		for i := td.lo; i < td.hi; i++ {
+		mf(cp, aux, td.lo, td.mid, td.hi)
+		for i := td.lo; i <= td.hi; i++ {
 			if cp[i] != td.merged[i] {
-				t.Fatalf("merge error for data %v lo=%d mid=%d hi=%d, got %v, should be %v\n",
-					td.orig, td.lo, td.mid, td.hi, cp, td.merged)
+				t.Fatalf("%s error for data %v lo=%d mid=%d hi=%d, got %v, should be %v\n",
+					funcName, td.orig, td.lo, td.mid, td.hi, cp, td.merged)
 			}
 		}
 	}
+}
+
+func TestMerge(t *testing.T) {
+	testMerge("merge", merge, t)
+}
+
+func TestMergeInto(t *testing.T) {
+	mf := func(a, aux []int, lo, mid, hi int) {
+		mergeInto(a, aux, lo, mid, hi)
+		// copy aux back to a, so the test code can check correctness
+		copy(a[lo:hi+1], aux[lo:hi+1])
+	}
+	testMerge("mergeInto", mf, t)
 }
 
 func TestMergeSort(t *testing.T) {

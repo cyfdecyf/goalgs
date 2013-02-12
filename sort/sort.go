@@ -92,3 +92,25 @@ func MergeSort(a []int) {
 	aux := make([]int, len(a))
 	mergeSort(a, aux, 0, len(a)-1)
 }
+
+// merge merges 2 parts of the sorted slices into the auxiliary slice.
+func mergeInto(a, aux []int, lo, mid, hi int) {
+	i := lo
+	j := mid + 1
+	for k := lo; k <= hi; k++ {
+		if i > mid {
+			copy(aux[k:], a[j:hi+1])
+			break
+		} else if j > hi {
+			copy(aux[k:], a[i:mid+1])
+			break
+		}
+		if a[i] <= a[j] {
+			aux[k] = a[i]
+			i++
+		} else {
+			aux[k] = a[j]
+			j++
+		}
+	}
+}
