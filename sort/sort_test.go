@@ -1,10 +1,13 @@
 package sort
 
 import (
+	"fmt"
 	"github.com/cyfdecyf/goutil/rand"
 	"sort"
 	"testing"
 )
+
+var _ = fmt.Println
 
 var data [][]int
 
@@ -13,7 +16,7 @@ func init() {
 	data = make([][]int, nSeq, nSeq)
 
 	for i := 0; i < nSeq; i++ {
-		n := int(1 << uint32(i))
+		n := int(1<<uint32(i)) + rand.Rand(0, 10)
 		data[i] = rand.GenKRandomLessN(n, n)
 	}
 }
@@ -23,9 +26,9 @@ func init() {
 // before sorting.
 func copyTestData() [][]int {
 	nSeq := len(data)
-	cp := make([][]int, nSeq, nSeq)
+	cp := make([][]int, nSeq)
 	for i := 0; i < nSeq; i++ {
-		n := len(cp[i])
+		n := len(data[i])
 		cp[i] = make([]int, n, n)
 		copy(cp[i], data[i])
 	}
@@ -36,8 +39,10 @@ func testSortFunc(sortFunc func(sort.Interface), funcName string, t *testing.T) 
 	for i, d := range copyTestData() {
 		is := sort.IntSlice(d)
 		sortFunc(is)
-		if !sort.IsSorted(is) {
-			t.Fatalf("%s wrong for data: %v, get: %v", funcName, data[i], d)
+		for di, dv := range d {
+			if di != dv {
+				t.Fatalf("%s wrong for data: %v, get: %v", funcName, data[i], d)
+			}
 		}
 	}
 }

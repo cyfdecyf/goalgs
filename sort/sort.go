@@ -13,7 +13,7 @@ func SelectionSort(data sort.Interface) {
 		minId := i
 		// find the minium
 		for j := i + 1; j < n; j++ {
-			if data.Less(minId, j) {
+			if data.Less(j, minId) {
 				minId = j
 			}
 		}
