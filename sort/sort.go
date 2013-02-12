@@ -33,7 +33,7 @@ func InsertionSort(data sort.Interface) {
 func ShellSort(data sort.Interface) {
 	n := data.Len()
 
-	var h int
+	h := 1
 	// 3x+1 increment sequence:  1, 4, 13, 40, 121, 364, 1093, ...
 	for h < n/3 {
 		h = 3*h + 1
@@ -42,7 +42,7 @@ func ShellSort(data sort.Interface) {
 	for h >= 1 {
 		// h-sort the array
 		for i := h; i < n; i++ {
-			for j := i; j > 0 && data.Less(j, j-h); j -= h {
+			for j := i; j >= h && data.Less(j, j-h); j -= h {
 				data.Swap(j, j-h)
 			}
 		}
