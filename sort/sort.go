@@ -56,6 +56,9 @@ func ShellSort(data sort.Interface) {
 
 // merge merges 2 parts of the sorted slices using the auxiliary slice.
 func merge(a, aux []int, lo, mid, hi int) {
+	if a[mid] <= a[mid+1] { // no need to merge
+		return
+	}
 	copy(aux[lo:], a[lo:mid+1])
 	// reverse copy the other part, so don't need sentinel in merg
 	// refer to Algorithms, 3ed.
