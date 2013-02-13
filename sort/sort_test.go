@@ -66,6 +66,12 @@ func TestQuickSort(t *testing.T) {
 	testSortFunc(QuickSort, "QuickSort", t)
 }
 
+func TestQuickSort3Way(t *testing.T) {
+	testSortFunc(QuickSort3Way, "QuickSort3Way", t)
+	// d := []int{0, 3, 6, 1, 5, 4, 2}
+	// QuickSort3Way(sort.IntSlice(d))
+}
+
 func testMerge(funcName string, mf func(a, aux []int, lo, mid, hi int), t *testing.T) {
 	testData := []struct {
 		orig   []int

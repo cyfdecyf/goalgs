@@ -162,19 +162,19 @@ func MergeSortBU(a []int) {
 }
 
 // Partition the subslice a[lo:hi+1] by returning an index j
-// so that a[lo:j] <= a[j] <= a[j+1:hi+1].
+// so that a[lo .. j-1] <= a[j] <= a[j+1 .. hi].
 func Partition(data sort.Interface, lo, hi int) int {
 	i := lo + 1
 	j := hi
-	pivot := lo
+	v := lo
 
 	for {
-		// Problem of this partition:  i, j stops at item which is the same as
-		// pivot.
-		for data.Less(i, pivot) && i < hi { // data[i] < data[pivot]
+		// Note:  i, j stops at item which is the same as pivot.
+		// Do not stop on equal item will suffer when there are many equal items.
+		for data.Less(i, v) && i < hi { // data[i] < data[v]
 			i++
 		}
-		for data.Less(pivot, j) && j > lo { // data[pivot] < data[j]
+		for data.Less(v, j) && j > lo { // data[v] < data[j]
 			j--
 		}
 		if i >= j {
@@ -182,8 +182,8 @@ func Partition(data sort.Interface, lo, hi int) int {
 		}
 		data.Swap(i, j)
 	}
-	// At this point, we must have data[j] <= data[pivot], that's why we swap j and pivot.
-	data.Swap(pivot, j)
+	// At this point, we must have data[j] <= data[v], that's why we swap j and pivot.
+	data.Swap(v, j)
 	return j
 }
 
@@ -196,7 +196,45 @@ func quickSort(data sort.Interface, lo, hi int) {
 	quickSort(data, j+1, hi)
 }
 
+// QuickSort sorts the slice.
 func QuickSort(data sort.Interface) {
 	rand.Shuffle(data)
 	quickSort(data, 0, data.Len()-1)
+}
+
+// Partition3Way partitions the data into 3 parts:
+// data[lo .. lt-1] < v = data[lt .. gt] < data[gt+1 .. hi]
+func Partition3Way(data sort.Interface, lo, hi int) (lt, gt int) {
+	lt = lo // lt always points to the pivot
+	gt = hi
+
+	// Invariant: data[lo .. lt - 1] < v = data[lt .. i-1] < data[gt+1 .. hi]
+	for i := lo + 1; i <= gt; {
+		if data.Less(i, lt) { // data[i] < data[v]
+			data.Swap(i, lt)
+			lt++
+			i++
+		} else if data.Less(lt, i) { // data[v] < data[i]
+			data.Swap(gt, i)
+			gt--
+		} else {
+			i++
+		}
+	}
+	return
+}
+
+func quickSort3Way(data sort.Interface, lo, hi int) {
+	if hi <= lo {
+		return
+	}
+	lt, gt := Partition3Way(data, lo, hi)
+	quickSort3Way(data, lo, lt-1)
+	quickSort3Way(data, gt+1, hi)
+}
+
+// QuickSort3Way sorts the slice using quicksort with 3way partition.
+func QuickSort3Way(data sort.Interface) {
+	rand.Shuffle(data)
+	quickSort3Way(data, 0, data.Len()-1)
 }
