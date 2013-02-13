@@ -1,9 +1,11 @@
-// Package sort implements the following algorithms: selection sort, insertion sort, shell sort, merge sort.
-// For merge sort, I don't know what kind of interface is appropriate, so it only works on int slices.
+// Package sort implements the following algorithms: selection sort, insertion
+// sort, shell sort, merge sort, quicksort. For merge sort, I don't know what kind of
+// interface is appropriate, so it only works on int slices.
 package sort
 
 import (
 	"fmt"
+	"github.com/cyfdecyf/goutil/rand"
 	"sort"
 )
 
@@ -157,4 +159,44 @@ func MergeSortBU(a []int) {
 			merge(a, aux, lo, lo+sz-1, hi)
 		}
 	}
+}
+
+// Partition the subslice a[lo:hi+1] by returning an index j
+// so that a[lo:j] <= a[j] <= a[j+1:hi+1].
+func Partition(data sort.Interface, lo, hi int) int {
+	i := lo + 1
+	j := hi
+	pivot := lo
+
+	for {
+		// Problem of this partition:  i, j stops at item which is the same as
+		// pivot.
+		for data.Less(i, pivot) && i < hi { // data[i] < data[pivot]
+			i++
+		}
+		for data.Less(pivot, j) && j > lo { // data[pivot] < data[j]
+			j--
+		}
+		if i >= j {
+			break
+		}
+		data.Swap(i, j)
+	}
+	// At this point, we must have data[j] <= data[pivot], that's why we swap j and pivot.
+	data.Swap(pivot, j)
+	return j
+}
+
+func quickSort(data sort.Interface, lo, hi int) {
+	if hi <= lo {
+		return
+	}
+	j := Partition(data, lo, hi)
+	quickSort(data, lo, j-1)
+	quickSort(data, j+1, hi)
+}
+
+func QuickSort(data sort.Interface) {
+	rand.Shuffle(data)
+	quickSort(data, 0, data.Len()-1)
 }

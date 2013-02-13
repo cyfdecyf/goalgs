@@ -62,6 +62,10 @@ func TestShellSort(t *testing.T) {
 	testSortFunc(ShellSort, "ShellSort", t)
 }
 
+func TestQuickSort(t *testing.T) {
+	testSortFunc(QuickSort, "QuickSort", t)
+}
+
 func testMerge(funcName string, mf func(a, aux []int, lo, mid, hi int), t *testing.T) {
 	testData := []struct {
 		orig   []int
