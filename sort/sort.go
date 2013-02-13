@@ -95,6 +95,11 @@ func MergeSort(a []int) {
 
 // merge merges 2 parts of the sorted slices into the auxiliary slice.
 func mergeInto(a, aux []int, lo, mid, hi int) {
+	// fmt.Printf("Merging a: %v into %v\n", a, aux)
+	if a[mid] <= a[mid+1] { // no need to merge
+		copy(aux[lo:hi+1], a[lo:hi+1])
+		return
+	}
 	i := lo
 	j := mid + 1
 	for k := lo; k <= hi; k++ {
@@ -113,4 +118,24 @@ func mergeInto(a, aux []int, lo, mid, hi int) {
 			j++
 		}
 	}
+}
+
+// mergeSortNoCopy sorts slice a, puts the results in aux.
+func mergeSortNoCopy(a, aux []int, lo, hi int) {
+	// fmt.Printf("merge sort %v into %v, [%d, %d]\n", a, aux, lo, hi)
+	if hi <= lo {
+		return
+	}
+	mid := (hi-lo)/2 + lo
+	// For merge sort, all the data movement happens in merge. If we switch
+	// the role of a and aux for each merge, then we can avoid the copy.
+	mergeSortNoCopy(aux, a, lo, mid)
+	mergeSortNoCopy(aux, a, mid+1, hi)
+	mergeInto(a, aux, lo, mid, hi)
+}
+
+func MergeSortNoCopy(a []int) {
+	aux := make([]int, len(a))
+	copy(aux, a)
+	mergeSortNoCopy(aux, a, 0, len(a)-1)
 }

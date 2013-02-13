@@ -105,14 +105,22 @@ func TestMergeInto(t *testing.T) {
 	testMerge("mergeInto", mf, t)
 }
 
-func TestMergeSort(t *testing.T) {
+func testMergeSort(funcName string, ms func([]int), t *testing.T) {
 	for i, d := range copyTestData() {
-		MergeSort(d)
+		ms(d)
 		for di, dv := range d {
 			if di != dv {
-				t.Fatalf("MergeSort wrong for the %dth data: %v, get: %v", i, data[i], d)
+				t.Fatalf("%s wrong for data[%d]: %v, get: %v", funcName, i, data[i], d)
 			}
 		}
 	}
 
+}
+
+func TestMergeSort(t *testing.T) {
+	testMergeSort("MergeSort", MergeSort, t)
+}
+
+func TestMergeSortNoCopy(t *testing.T) {
+	testMergeSort("MergeSortNoCopy", MergeSortNoCopy, t)
 }
