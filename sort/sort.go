@@ -88,6 +88,7 @@ func mergeSort(a, aux []int, lo, hi int) {
 	merge(a, aux, lo, mid, hi)
 }
 
+// MergeSort does merge sort on slice a.
 func MergeSort(a []int) {
 	aux := make([]int, len(a))
 	mergeSort(a, aux, 0, len(a)-1)
@@ -134,8 +135,26 @@ func mergeSortNoCopy(a, aux []int, lo, hi int) {
 	mergeInto(a, aux, lo, mid, hi)
 }
 
+// MergeSortNoCopy does merge sort on slice a, without copying for each merge.
 func MergeSortNoCopy(a []int) {
 	aux := make([]int, len(a))
 	copy(aux, a)
 	mergeSortNoCopy(aux, a, 0, len(a)-1)
+}
+
+// MergeSortBU does bottom up merge sort on slice a.
+func MergeSortBU(a []int) {
+	n := len(a)
+	aux := make([]int, n)
+	// sz is the size of each sorted part
+	for sz := 1; sz < n; sz += sz {
+		// lo is the start index of the first sorted part
+		for lo := 0; lo < n-sz; lo += sz + sz {
+			hi := lo + sz + sz - 1
+			if hi > n-1 {
+				hi = n - 1
+			}
+			merge(a, aux, lo, lo+sz-1, hi)
+		}
+	}
 }

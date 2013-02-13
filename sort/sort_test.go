@@ -124,3 +124,7 @@ func TestMergeSort(t *testing.T) {
 func TestMergeSortNoCopy(t *testing.T) {
 	testMergeSort("MergeSortNoCopy", MergeSortNoCopy, t)
 }
+
+func TestMergeSortBU(t *testing.T) {
+	testMergeSort("MergeSortBU", MergeSortBU, t)
+}
