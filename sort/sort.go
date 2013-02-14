@@ -161,8 +161,8 @@ func MergeSortBU(a []int) {
 	}
 }
 
-// Partition the subslice a[lo:hi+1] by returning an index j
-// so that a[lo .. j-1] <= a[j] <= a[j+1 .. hi].
+// Partition the data by returning an index j
+// so that data[lo .. j-1] <= data[j] <= data[j+1 .. hi].
 func Partition(data sort.Interface, lo, hi int) int {
 	i := lo + 1
 	j := hi
@@ -237,4 +237,28 @@ func quickSort3Way(data sort.Interface, lo, hi int) {
 func QuickSort3Way(data sort.Interface) {
 	rand.Shuffle(data)
 	quickSort3Way(data, 0, data.Len()-1)
+}
+
+// Select will rearrange data so that data[k] is the kth smallest element.
+// data[0 .. k-1] <= data[k] <= data[k+1 .. n]
+func Select(data sort.Interface, k int) (id int) {
+	n := data.Len()
+	if k < 0 || k >= n {
+		panic("Select with invalid k")
+	}
+	rand.Shuffle(data)
+
+	lo := 0
+	hi := n - 1
+	for hi > lo {
+		i := Partition(data, lo, hi)
+		if i > k {
+			hi = i - 1
+		} else if i < k {
+			lo = i + 1
+		} else {
+			return i
+		}
+	}
+	return lo
 }

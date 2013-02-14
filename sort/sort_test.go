@@ -138,3 +138,18 @@ func TestMergeSortNoCopy(t *testing.T) {
 func TestMergeSortBU(t *testing.T) {
 	testMergeSort("MergeSortBU", MergeSortBU, t)
 }
+
+func TestSelect(t *testing.T) {
+	for i, d := range copyTestData() {
+		n := len(d)
+		target := [...]int{0, n / 4, n / 2, 3 * n / 4, n - 1}
+		for _, j := range target {
+			cp := make([]int, n)
+			copy(cp, d)
+			k := Select(sort.IntSlice(cp), j)
+			if cp[k] != k {
+				t.Fatalf("Select %dth number wrong for data[%d]: %v, got: %d\n", j, i, data[i], cp[k])
+			}
+		}
+	}
+}
